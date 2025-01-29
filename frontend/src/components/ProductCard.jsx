@@ -65,8 +65,8 @@ const ProductCard = ({product}) => {
         bg={bg}
       >
         <Image
-          src={product.image}
-          alt={product.name}
+          src={product?.image}
+          alt={product?.name}
           h={48}
           w="full"
           objectFit="cover"
@@ -74,14 +74,14 @@ const ProductCard = ({product}) => {
 
         <Box p={4}>
           <Heading as="h3" size="md" mb={2}>
-            {product.name}
+            {product?.name}
           </Heading>
 
           <Text fontWeight="bold" fontSize="xl" color={textColor} mb={4}>
-            ${product.price}
+            ${product?.price}
           </Text>
           {
-            isLoggedIn && (user.role === "superadmin" || user.role === "user" ) && (
+            isLoggedIn && (user.role === "superadmin" || user.role === "admin" ) && (
             <HStack spacing={2}>
               <IconButton
                 icon={<EditIcon />}

@@ -35,7 +35,7 @@ const registerUser = async (req, res) => {
 
     res.status(200).json({statusCode: 200, // Send response with token and user data
       token,
-      user: { id: user._id, name: user.name, role: user.role }, // Send response with token and user data
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }, // Send response with token and user data
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -78,7 +78,13 @@ const loginUser = async (req, res) => {
 
     res.status(200).json({
       token,
-      user: {statusCode: 200, id: user._id, name: user.name, role: user.role },
+      user: {
+        statusCode: 200,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     res.status(500).json({statusCode: 500, message: error.message });
