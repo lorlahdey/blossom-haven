@@ -3,12 +3,13 @@ import { Box, Heading, HStack, IconButton, Image, Text, useColorModeValue, useDi
 import { useProductStore } from "../store/product";
 import { useState } from "react";
 import ProductModal from "./ProductModal";
+import useAuthStore from "../store/authStore";
 
 
 const ProductCard = ({product}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { deleteProduct, updateProduct } = useProductStore();
-    
+    const { user, isLoggedIn } = useAuthStore();
     const [updatedProduct, setUpdatedProduct] = useState(product);
 
     const textColor = useColorModeValue("gray.600", "gray.200");
@@ -79,21 +80,24 @@ const ProductCard = ({product}) => {
           <Text fontWeight="bold" fontSize="xl" color={textColor} mb={4}>
             ${product.price}
           </Text>
-
-          <HStack spacing={2}>
-            <IconButton
-              icon={<EditIcon />}
-              onClick={() => {
-                onOpen()
-              }}
-              colorScheme="blue"
-            />
-            <IconButton
-              icon={<DeleteIcon />}
-              onClick={() => handleDeleteProduct(product._id)}
-              colorScheme="red"
-            />
-          </HStack>
+          {
+            isLoggedIn && (user.role === "superadmin" || user.role === "user" ) && (
+            <HStack spacing={2}>
+              <IconButton
+                icon={<EditIcon />}
+                onClick={() => {
+                  onOpen()
+                }}
+                colorScheme="blue"
+              />
+              <IconButton
+                icon={<DeleteIcon />}
+                onClick={() => handleDeleteProduct(product._id)}
+                colorScheme="red"
+              />
+            </HStack>
+            )
+          }
         </Box>
 
         {/* <Modal isOpen={isOpen} onClose={onClose}></Modal> */}

@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Container, SimpleGrid, Text, VStack, Spinner, useColorModeValue } from "@chakra-ui/react";
+import { Link, useNavigate } from "react-router-dom";
+import { Container, SimpleGrid, Text, VStack, Spinner, useColorModeValue, useDisclosure, Button } from "@chakra-ui/react";
 import { useProductStore } from "../store/product";
+import useAuthStore from "../store/authStore";
 import ProductCard from "../components/ProductCard";
+import LoginModal from "../components/LoginModal";
 
 const HomePage = () => {
+    const navigate = useNavigate();
+    const { isLoggedIn } = useAuthStore();
     const { fetchProducts, products } = useProductStore();
     const [loading, setloading] = useState(true)
+    const loginModal = useDisclosure();
 
     const gradient = useColorModeValue(
           "linear(to-r, #FFF4E6, #FFDD4A,)", // Light mode gradient
@@ -19,6 +24,14 @@ const HomePage = () => {
         fetchProducts();
         setloading(false)
     }, [fetchProducts]);
+
+    const handleCreateProductClick = () => {
+      if (isLoggedIn) {
+        navigate("/create");
+      } else {
+        loginModal.onOpen(); // Trigger login modal
+      }
+    };
 
     return (
       <Container maxW="container.xl" py={12}>
@@ -33,7 +46,7 @@ const HomePage = () => {
             Current Products 🚀
           </Text>
 
-          {loading ? (
+          {loading || products.length === 0 ? (
             <Spinner size="xl" />
           ) : (
             <SimpleGrid
@@ -45,8 +58,8 @@ const HomePage = () => {
               spacing={10}
               w={"full"}
             >
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
+              {products?.map((product) => (
+                <ProductCard key={product?._id} product={product} />
               ))}
             </SimpleGrid>
           )}
@@ -59,7 +72,7 @@ const HomePage = () => {
               color="gray.500"
             >
               No products found 😢{" "}
-              <Link to={"/create"}>
+              {/* <Link to={"/create"}>
                 <Text
                   as="span"
                   color="blue.500"
@@ -67,10 +80,21 @@ const HomePage = () => {
                 >
                   Create a product
                 </Text>
-              </Link>
+              </Link> */}
+              <Button
+                variant="link"
+                color="blue.500"
+                _hover={{ textDecoration: "underline" }}
+                onClick={handleCreateProductClick}
+              >
+                Create a product
+              </Button>
             </Text>
           )}
         </VStack>
+
+        {/* Login Modal */}
+        <LoginModal isOpen={loginModal.isOpen} onClose={loginModal.onClose} />
       </Container>
     );
 };
