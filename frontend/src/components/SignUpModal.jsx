@@ -1,9 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import {
-  // useDisclosure,
   Button,
+  Divider,
   Input,
   Modal,
   ModalBody,
@@ -12,9 +10,10 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
-
+import { FaGoogle, FaFacebook, FaPinterest } from "react-icons/fa";
 import useAuthStore from "../store/authStore";
 
 
@@ -24,24 +23,53 @@ const userInfo = {
     password: "",
 };
 const SignUpModal = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-  const { setUser, register, token, user, isLoggedIn } = useAuthStore();
+  const { setUser, register, } = useAuthStore();
   const [userData, setUserData] = useState(userInfo);
-  // console.log(token, user, isLoggedIn, "00111");
+  const toast = useToast({
+    position: "top-right",
+    duration: 5000,
+    isClosable: true,
+  });
 
   // Registering a user
   const handleRegister = async () => {
     try {
-        const { error, success, message, data } = await register(userData);
+        const { success, message, data } = await register(userData);
         setUser(data);
         onClose();
         setUserData(userInfo);
-        console.log( "User registered successfully! 111111");
+        if (success) {
+          toast({
+            title: "Success",
+            description: message,
+            status: "success",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: message,
+            status: "error",
+          });
+        }
     } catch (err) {
-        console.error(err.response.data.error);
-        console.error("Registration error:", message);
+        return err;
     }
   };  
+
+  const handleSocialSignup = (provider) => {
+    let authUrl = "";
+
+    if (provider === "Google") {
+      authUrl = "/api/auth/google";
+    } else if (provider === "Facebook") {
+      authUrl = "/api/auth/facebook";
+    } else if (provider === "Pinterest") {
+      authUrl = "/api/auth/pinterest";
+    }
+
+    // Redirect the user to the OAuth authentication page
+    window.location.href = authUrl;
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -76,14 +104,40 @@ const SignUpModal = ({ isOpen, onClose }) => {
               }
             />
           </VStack>
+          <Divider my={4} />
+          <VStack spacing={3}>
+            <Button
+              leftIcon={<FaGoogle />}
+              colorScheme="red"
+              variant="outline"
+              width="full"
+              onClick={() => handleSocialSignup("Google")}
+            >
+              Sign up with Google
+            </Button>
+            <Button
+              leftIcon={<FaFacebook />}
+              colorScheme="blue"
+              variant="outline"
+              width="full"
+              // onClick={() => handleSocialSignup("Facebook")}
+            >
+              Sign up with Facebook
+            </Button>
+            <Button
+              leftIcon={<FaPinterest />}
+              colorScheme="red"
+              variant="outline"
+              width="full"
+              // onClick={() => handleSocialSignup("Pinterest")}
+            >
+              Sign up with Pinterest
+            </Button>
+          </VStack>
         </ModalBody>
 
         <ModalFooter>
-          <Button
-            colorScheme="blue"
-            mr={3}
-            onClick={handleRegister}
-          >
+          <Button colorScheme="blue" mr={3} onClick={handleRegister}>
             Sign Up
           </Button>
           <Button variant="ghost" onClick={onClose}>

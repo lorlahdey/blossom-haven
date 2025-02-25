@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage';
 import CreatePage from "./pages/CreatePage";
 import Navbar from './components/Navbar';
 import ProtectedRoute from './routes/ProtectedRoute';
+import AuthSuccess from './pages/AuthSuccess';
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/auth-success" element={<AuthSuccess />} />
         <Route
           path="/create"
           element={

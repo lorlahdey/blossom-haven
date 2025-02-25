@@ -8,7 +8,6 @@ const getToken = () => {
     const parsedData = JSON.parse(storedData); // Parse JSON data
     return parsedData.state.token; // Return the actual token
   } catch (error) {
-    console.error("Error parsing token from localStorage", error);
     return null;
   }
 };

@@ -19,26 +19,38 @@ const registerUser = async (req, res) => {
         .status(400)
         .json({ statusCode: 400, message: "User already exists" });
 
-    // console.log("Before Hashing:", password);
-
     // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password.trim(), 10);
 
-    // console.log('*********************');
-    // console.log("After Hashing:", hashedPassword);
-    
-    // Creating the new user with hashed password
-    const user = await User.create({ name, email, password: hashedPassword });
-    
-    // console.log("Stored Hashed Password:", user.password);
-    const token = generateToken(user._id, user.role);
+    try {
+      //creating the new user with hashed password & (catch duplicate errors)
+      const user = await User.create({ name, email, password: hashedPassword });
 
-    res.status(200).json({statusCode: 200, // Send response with token and user data
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }, // Send response with token and user data
-    });
+      // // Generate JWT token
+      const token = generateToken(user._id, user.role);
+      return res.status(200).json({
+        // Send response with token and user data
+        statusCode: 200,
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    } catch (dbError) {
+      if (dbError.code === 11000) {
+        return res
+          .status(400)
+          .json({ statusCode: 400, message: "Email already registered" });
+      }
+      throw dbError; // Re-throw other DB errors
+    }
+
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ statusCode: 500, message: error.message });
   }
 };
 
@@ -47,39 +59,24 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    // console.log("User Found:", user);
     if (!user)
       return res
         .status(404)
         .json({ statusCode: 404, message: "User not found" });
 
-
     const isMatch = await bcrypt.compare(password, user.password);
-    // console.log(isMatch, password, user.password, 'isMatch controller');
-    // console.log("-----------------:",);
-    // console.log("Entered Password:", password);
-    // console.log("Stored Hashed Password:", user.password);
     
     if (!isMatch)
       return res
         .status(401)
         .json({ statusCode: 401, message: "Invalid credentials" });
 
-    // Generate JWT
-    // const token = jwt.sign(
-    //   { id: user._id, role: user.role },
-    //   process.env.JWT_SECRET, // Use a strong secret key
-    //   {
-    //     // expiresIn: "1d",
-    //     expiresIn: process.env.JWT_EXPIRES_IN,
-    //   }
-    // );
     const token = generateToken(user._id, user.role);
 
     res.status(200).json({
+      statusCode: 200,
       token,
       user: {
-        statusCode: 200,
         id: user._id,
         name: user.name,
         email: user.email,

@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from "dotenv";
 import path from 'path';
 import { connectDB } from './config/db.js';
+import "./config/passport.js"; // Import Passport configuration and Ensure passport strategies are loaded
 import productRoutes from "./routes/product.route.js"
 import authRoutes from "./routes/auth.route.js"
 
